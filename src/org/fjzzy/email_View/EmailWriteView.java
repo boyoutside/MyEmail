@@ -146,7 +146,7 @@ public class EmailWriteView {
 					//发送邮件并提示发送成功
 					try {
 						write.sentEmail();
-						lblHint.setText("发送成功！");
+						lblHint.setText("发送成功！！");
 						txtSubject.setText("");;
 						txtContent.setText("");
 						txtContent.forceFocus();
