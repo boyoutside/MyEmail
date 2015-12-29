@@ -52,6 +52,7 @@ public class EmailShowView {
 	private String user;
 	private String password;
 	private Button btnReply;
+	private Button btnTransmit;
 	
 	
 	//接收邮件 主窗体EmailListView传送过来的信息
@@ -105,14 +106,14 @@ public class EmailShowView {
 	 */
 	public EmailShowView(){
 	}
-//	public static void main(String[] args) {
-//		try {
-//			EmailShowView window = new EmailShowView();
-//			window.open();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	public static void main(String[] args) {
+		try {
+			EmailShowView window = new EmailShowView();
+			window.open();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Open the window.
@@ -173,6 +174,12 @@ public class EmailShowView {
 		shell.setText("SWT Application");
 		
 		Button btnClose = new Button(shell, SWT.NONE);
+		btnClose.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				shell.dispose();
+			}
+		});
 		btnClose.setText("<<\u5173\u95ED");
 		btnClose.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
 		btnClose.setBounds(611, 514, 102, 39);
@@ -235,7 +242,7 @@ public class EmailShowView {
 		btnReply.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				EmailWriteView writeView=new EmailWriteView(user,password,user,sentPerson,true);
+				EmailWriteView writeView=new EmailWriteView(user,password,user,sentPerson,true,browserEmail.getText());
 				shell.dispose();
 				writeView.open();
 			}
@@ -243,6 +250,20 @@ public class EmailShowView {
 		btnReply.setText("<<\u56DE\u590D");
 		btnReply.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
 		btnReply.setBounds(481, 514, 102, 39);
+		
+		//点击“转发”按钮
+		btnTransmit = new Button(shell, SWT.NONE);
+		btnTransmit.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				EmailWriteView writeView=new EmailWriteView(user,password,user,browserEmail.getText(),true);
+				shell.dispose();
+				writeView.open();
+			}
+		});
+		btnTransmit.setText("<<\u8F6C\u53D1");
+		btnTransmit.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
+		btnTransmit.setBounds(347, 514, 102, 39);
 
 	}
 }

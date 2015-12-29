@@ -33,23 +33,36 @@ public class EmailWriteView {
 	private String path;
 	private String sentPerson;
 	private String receivePerson;
+	private String emailContent;
 	private boolean isReply=false;
+	private boolean isTransmit=false;
 	
 	EmailWrite write=null;
 	private Label lblHint;
 	private Label lblAddHint;
 	
-	
+	//接收回复时传送过来的信息
 	public EmailWriteView(String user, String password, String sentPerson,
-			String receivePerson,boolean isReply) {
+			String receivePerson,boolean isReply,String emailContent) {
 		super();
 		this.user = user;
 		this.password = password;
 		this.sentPerson = sentPerson;
 		this.receivePerson = receivePerson;
 		this.isReply=isReply;
+		this.emailContent=emailContent;
 	}
-
+	//接收转发传送过来的信息
+	public EmailWriteView(String user, String password, String sentPerson,
+			String emailContent, boolean isTransmit) {
+		super();
+		this.user = user;
+		this.password = password;
+		this.sentPerson = sentPerson;
+		this.emailContent = emailContent;
+		this.isTransmit = isTransmit;
+	}
+	//接收写信传送过来的信息
 	public EmailWriteView(String user, String password) {
 		super();
 		this.user = user;
@@ -74,6 +87,9 @@ public class EmailWriteView {
 	public void setReceivePerson(String receivePerson) {
 		this.receivePerson = receivePerson;
 	}
+	public void setEmailContent(String emailContent) {
+		this.emailContent = emailContent;
+	}
 	
 	
 
@@ -90,6 +106,7 @@ public class EmailWriteView {
 //		}
 //	}
 
+
 	/**
 	 * Open the window.
 	 */
@@ -101,7 +118,12 @@ public class EmailWriteView {
 		if(isReply){
 			txtSentPerson.setText(user);
 			txtReceivePerson.setText(receivePerson);
-			isReply=false;
+			txtContent.setText(emailContent+"\r\n\b你说：");
+		}
+		if(isTransmit){
+			txtSentPerson.setText(user);
+			txtContent.setText(emailContent);
+			txtContent.setEditable(false);
 		}
 		System.out.println(path+filerName);
 		while (!shell.isDisposed()) {
@@ -146,7 +168,7 @@ public class EmailWriteView {
 					//发送邮件并提示发送成功
 					try {
 						write.sentEmail();
-						lblHint.setText("发送成功！！");
+						lblHint.setText("发送成功！");
 						txtSubject.setText("");;
 						txtContent.setText("");
 						txtContent.forceFocus();
@@ -211,22 +233,18 @@ public class EmailWriteView {
 		btnAddAttach.setBounds(43, 170, 80, 35);
 		
 		txtSentPerson = new Text(shell, SWT.NONE);
-		txtSentPerson.setText("15817972395@sina.cn");
 		txtSentPerson.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
 		txtSentPerson.setBounds(103, 72, 288, 23);
 		
 		txtReceivePerson = new Text(shell, SWT.NONE);
-		txtReceivePerson.setText("15817972395@sina.cn");
 		txtReceivePerson.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
 		txtReceivePerson.setBounds(103, 106, 288, 23);
 		
 		txtSubject = new Text(shell, SWT.NONE);
-		txtSubject.setText("\u6D4B\u8BD5\u53D1\u9001\u90AE\u4EF6\uFF01\uFF01");
 		txtSubject.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
 		txtSubject.setBounds(103, 142, 288, 23);
 		
-		txtContent = new Text(shell, SWT.BORDER | SWT.WRAP | SWT.MULTI);
-		txtContent.setText("\u6D4B\u8BD5\u7528SWT\u7A0B\u5E8F\u53D1\u9001\u4E00\u5C01\u65B0\u6D6A\u90AE\u4EF6\uFF01");
+		txtContent = new Text(shell, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL | SWT.MULTI);
 		txtContent.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
 		txtContent.setToolTipText("\u8BF7\u7740\u6B64\u5904\u8F93\u5165\u6B63\u6587\u5185\u5BB9");
 		txtContent.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
