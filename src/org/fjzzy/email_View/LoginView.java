@@ -99,7 +99,8 @@ public class LoginView {
 					if(emailReceive.isConnect()){
 						System.out.println("³É¹¦");
 						shell.dispose();
-						EmailListView listView = new EmailListView(emailReceive.getFolder());
+						System.out.println(emailReceive.getUser()+"+"+emailReceive.getPassword());
+						EmailListView listView = new EmailListView(emailReceive.getFolder(),emailReceive.getUser(),emailReceive.getPassword());
 						listView.open();
 					}
 				} catch (MessagingException | IOException e1) {

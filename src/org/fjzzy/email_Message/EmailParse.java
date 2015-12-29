@@ -33,186 +33,204 @@ public class EmailParse {
 	private String emailContent;
 	private String emailSendDate;
 	private String emailSubject;
-	
-	
-	public ArrayList<EmailReceiveSave> receive=new ArrayList<EmailReceiveSave>();
-	
+	private ArrayList<InputStream> attachStream = null;
+	private ArrayList<String> attachName = null;
+
+	public ArrayList<EmailReceiveSave> receive = null;
+
 	public EmailParse(Folder folder) {
 		super();
 		this.folder = folder;
 	}
+
 	public EmailParse() {
 		super();
 	}
+
 	public ArrayList<EmailReceiveSave> getReceive() {
 		return receive;
 	}
+
 	public void setReceive(ArrayList<EmailReceiveSave> receive) {
 		this.receive = receive;
 	}
+
 	public Folder getFolder() {
 		return folder;
 	}
+
 	public void setFolder(Folder folder) {
 		this.folder = folder;
 	}
+
 	public String getEmailFrom() {
 		return emailFrom;
 	}
+
 	public void setEmailFrom(String emailFrom) {
 		this.emailFrom = emailFrom;
 	}
+
 	public String getEmailContent() {
 		return emailContent;
 	}
+
 	public void setEmailContent(String emailContent) {
 		this.emailContent = emailContent;
 	}
+
 	public String getEmailSendDate() {
 		return emailSendDate;
 	}
+
 	public void setEmailSendDate(String emailSendDate) {
 		this.emailSendDate = emailSendDate;
 	}
+
 	public String getEmailSubject() {
 		return emailSubject;
 	}
+
 	public void setEmailSubject(String emailSubject) {
 		this.emailSubject = emailSubject;
 	}
-	
-	
-	
-	public void saveBasic() throws MessagingException, IOException{
+
+	public ArrayList<InputStream> getAttachStream() {
+		return attachStream;
+	}
+
+	public void setAttachStream(ArrayList<InputStream> attachStream) {
+		this.attachStream = attachStream;
+	}
+
+	public ArrayList<String> getAttachName() {
+		return attachName;
+	}
+
+	public void setAttachName(ArrayList<String> attachName) {
+		this.attachName = attachName;
+	}
+
+	// 获取全部信息
+	public void saveBasic() throws MessagingException, IOException {
 		folder.open(Folder.READ_ONLY);
-		Message message[]=folder.getMessages();
-		//关闭远程储存连接
-//		content=parse.emailparse(message[2]);
-		for(int i=0,emailCount=message.length;i<emailCount;i++){
-			MimeMessage msg=(MimeMessage)message[i];
-			emailFrom=getFrom(msg);
-			emailContent=getContent(msg);
-			emailSendDate=getSendDate(msg);
-			emailSubject=getSubject(msg);
-			receive.add(new EmailReceiveSave(emailFrom,emailContent,emailSendDate,emailSubject));
+		Message message[] = folder.getMessages();
+		receive = new ArrayList<EmailReceiveSave>();
+		// 关闭远程储存连接
+		// content=parse.emailparse(message[2]);
+		for (int i = 0, emailCount = message.length; i < emailCount; i++) {
+
+			attachStream = new ArrayList<>();
+			attachName = new ArrayList<>();
+			MimeMessage msg = (MimeMessage) message[i];
+			emailFrom = getFrom(msg);
+			emailContent = getContent(msg);
+			emailSendDate = getSendDate(msg);
+			emailSubject = getSubject(msg);
+			receive.add(new EmailReceiveSave(emailFrom, emailContent,
+					emailSendDate, emailSubject, attachStream, attachName));
+			System.out.println(attachName);
+			// attachStream.clear();
+			// attachName.clear();
 		}
 		folder.close(false);
 	}
-	public void createTable(Table table) throws MessagingException, IOException{
-//		folder.open(Folder.READ_ONLY);
-//		Message message[]=folder.getMessages();
-		//关闭远程储存连接
-//		content=parse.emailparse(message[2]);
-//		for(int i=0,emailCount=message.length;i<emailCount;i++){
-//			MimeMessage msg=(MimeMessage)message[i];
-//			emailFrom=getFrom(msg);
-//			emailContent=getContent(msg);
-////			emailSendDate=getSendDate(msg);
-//			emailSubject=getSubject(msg);
-//			receive.add(new EmailReceiveSave(emailFrom,emailContent,emailSendDate,emailSubject));
-//		}
-//		folder.close(false);
+
+	public void createTable(Table table) throws MessagingException, IOException {
+		table.removeAll();
 		TableItem item;
-		new org.eclipse.swt.widgets.TableColumn(table, SWT.CENTER).setText("发件人                                            ");
+		new org.eclipse.swt.widgets.TableColumn(table, SWT.CENTER)
+				.setText("发件人                                            ");
 		table.getColumn(0).pack();
-		new org.eclipse.swt.widgets.TableColumn(table, SWT.CENTER).setText("主题                                                ");
+		new org.eclipse.swt.widgets.TableColumn(table, SWT.CENTER)
+				.setText("主题                                                          ");
 		table.getColumn(1).pack();
-		new org.eclipse.swt.widgets.TableColumn(table, SWT.CENTER).setText("发送日期                                                  ");
+		new org.eclipse.swt.widgets.TableColumn(table, SWT.CENTER)
+				.setText("发送日期                                                  ");
 		table.getColumn(2).pack();
-		for(int row=0;row<receive.size();row++){
-			item=new TableItem(table, SWT.None);
+		for (int row = 0; row < receive.size(); row++) {
+			item = new TableItem(table, SWT.None);
 			item.setText(0, receive.get(row).getEmailFrom());
 			item.setText(1, receive.get(row).getEmailSubject());
 			item.setText(2, receive.get(row).getEmailSendDate());
 		}
 	}
-	//获取邮件基本信息的总方法
-		public void getEmailBasic(){
-			for(int i=0;i<receive.size();i++){
-				System.out.println("发件人："+receive.get(i).getEmailFrom());
-				System.out.println("主题："+receive.get(i).getEmailSubject());
-				System.out.println("内容："+receive.get(i).getEmailContent());
-				System.out.println("日期："+receive.get(i).getEmailSendDate());
-			}
+
+	// 获取邮件主题
+	private String getSubject(MimeMessage message) throws MessagingException {
+		String subject = "";
+		if (message.getSubject() != null) {
+			subject = message.getSubject();
 		}
-	//获取邮件主题
-		private String getSubject(MimeMessage message) throws MessagingException{
-			String subject="";
-			if(message.getSubject()!=null){
-				subject=message.getSubject();
+		return subject;
+	}
+
+	// 获取发件人
+	private String getFrom(MimeMessage message) throws MessagingException,
+			UnsupportedEncodingException {
+		String from = "";
+		Address[] froms = message.getFrom();
+		if (froms.length < 1) {
+			from = "";
+		} else {
+			InternetAddress address = (InternetAddress) froms[0];
+			String person = address.getPersonal();
+			if (person != null) {
+				person = MimeUtility.decodeText(person);
+			} else {
+				person = "";
 			}
-			return subject;
+			from = person + "<" + address.getAddress() + ">";
 		}
-		//获取发件人
-		private String getFrom(MimeMessage message) throws MessagingException, UnsupportedEncodingException{
-			String from="";
-			Address[] froms=message.getFrom();
-			if(froms.length<1){
-				from="";
-			}else{
-				InternetAddress address=(InternetAddress)froms[0];
-				String person=address.getPersonal();
-				if(person!=null){
-					person=MimeUtility.decodeText(person);
-				}else{
-					person="";
+		return from;
+	}
+
+	// 获取邮件内容
+	private String getContent(MimeMessage message) throws MessagingException,
+			IOException {
+		String content = "";
+		StringBuffer singleEmail = new StringBuffer();
+		content = emailparse(message, singleEmail);
+		if (content == null) {
+			content = "";
+		}
+		return content;
+	}
+
+	// 获取发送日期
+	private String getSendDate(MimeMessage message) throws MessagingException {
+		Date sendDate;
+		sendDate = message.getSentDate();
+		if (sendDate == null) {
+			return "";
+		}
+		// return sendDate.toString();
+		return new SimpleDateFormat("yyyy年MM月dd日 E HH:mm").format(sendDate);
+	}
+
+	StringBuffer content = new StringBuffer();
+
+	public String emailparse(Part msg, StringBuffer content)
+			throws MessagingException, IOException {
+		if (msg.isMimeType("text/*")) {
+			content.append((String) msg.getContent());
+		} else if (msg.isMimeType("multipart/*")) {
+			Multipart multipart = (Multipart) msg.getContent();
+			int count = multipart.getCount();
+			for (int i = 0; i < count; i++) {
+				BodyPart bodypart = multipart.getBodyPart(i);
+				if (bodypart.getDisposition() != null) {
+					// if(bodypart.getContentType().indexOf("application")!=-1){
+					if (bodypart.getFileName() != null) {
+						attachStream.add(bodypart.getInputStream());
+						attachName.add(MimeUtility.decodeText(bodypart
+								.getFileName()));
+						System.out.println(attachName.size());
+					}
 				}
-				from=person+"<"+address.getAddress()+">";
+				emailparse(bodypart, content);
 			}
-			return from;
 		}
-		//获取邮件内容
-		private String getContent(MimeMessage message) throws MessagingException, IOException{
-			String content="";
-			StringBuffer singleEmail=new StringBuffer();
-			content=emailparse(message,singleEmail);
-			if(content==null){
-				content="";
-			}
-			return content;
-		}
-		//获取发送日期
-		private String getSendDate(MimeMessage message) throws MessagingException{
-			Date sendDate;
-			sendDate=message.getSentDate();
-			if(sendDate==null){
-				return "";
-			}
-			return new SimpleDateFormat("yyyy年MM月dd日 E HH:mm").format(sendDate);
-		}
-
-
-
-
-	StringBuffer content=new StringBuffer();
-	public String emailparse(Part msg,StringBuffer content) throws MessagingException, IOException{
-		 if(msg.isMimeType("text/*")){
-			 content.append((String)msg.getContent());
-		 }else if(msg.isMimeType("multipart/*")){
-			 Multipart multipart=(Multipart) msg.getContent();
-			 int count=multipart.getCount();
-			 for(int i=0;i<count;i++){
-				 BodyPart bodypart=multipart.getBodyPart(i);
-//				 if(bodypart.getDisposition()!=null){
-				 if(bodypart.getContentType().indexOf("application")!=-1){
-					 if(bodypart.getFileName()!=null){
-//						 InputStream input=bodypart.getInputStream();
-//						 BufferedInputStream bufferin=new BufferedInputStream(input);
-//						 BufferedOutputStream bufferout=new BufferedOutputStream(new FileOutputStream(
-//								 new File("D:/JavaMail_API文档/电子邮件/"+MimeUtility.decodeText(bodypart.getFileName()))
-//								 ));
-//						 int len=-1;
-//						 while((len=bufferin.read())!=-1){
-//							 bufferout.write(len);
-//							 bufferout.flush();
-//						 }
-//						 bufferout.close();
-//						 bufferin.close();
-					 }
-				 }
-				 emailparse(bodypart,content);
-			 }
-		 }
-		 return content.toString();
+		return content.toString();
 	}
 }

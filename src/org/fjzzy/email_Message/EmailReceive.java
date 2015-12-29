@@ -68,7 +68,6 @@ public class EmailReceive {
 	public boolean isConnect() throws MessagingException, IOException{
 		boolean connect;
 		Session session=Session.getInstance(getProp());
-		session.setDebug(true);
 		//获取INBOX
 		Store stroe=session.getStore("pop3");
 		stroe.connect(user, password);
@@ -92,19 +91,6 @@ public class EmailReceive {
 		stroe.connect(user, password);
 		Folder folder=stroe.getFolder("INBOX");
 		folder.open(Folder.READ_ONLY);
-//		Message message[]=folder.getMessages();
-		//关闭远程储存连接
-//		content=parse.emailparse(message[2]);
-//		for(int i=0,emailCount=message.length;i<emailCount;i++){
-//			MimeMessage msg=(MimeMessage)message[i];
-//			emailFrom=getFrom(msg);
-//			emailContent=getContent(msg);
-//			emailSendDate=getSendDate(msg);
-//			emailSubject=getSubject(msg);
-//			receive.add(new EmailReceiveSave(emailFrom,emailContent,emailSendDate,emailSubject));
-//		}
-//		folder.close(false);
-//		stroe.close();
 	}
 	
 }

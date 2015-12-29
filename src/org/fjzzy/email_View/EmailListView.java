@@ -1,6 +1,8 @@
 package org.fjzzy.email_View;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
@@ -24,7 +26,18 @@ public class EmailListView {
 	private Table table;
 	private Folder folder;
 	
-	EmailReceive emailReceive=null;
+	private String user;
+	private String password;
+	public void setUser(String user) {
+		this.user = user;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+
+
 	EmailParse parse=null;
 	
 	/**
@@ -60,12 +73,15 @@ public class EmailListView {
 	}
 
 
-	public EmailListView(Folder folder) {
+	
+
+	//接收登录窗口LoginView传送过来的邮箱、账户名跟密码
+	public EmailListView(Folder folder, String user, String password) {
 		super();
 		this.folder = folder;
+		this.user = user;
+		this.password = password;
 	}
-
-
 	public Folder getFolder() {
 		return folder;
 	}
@@ -86,21 +102,32 @@ public class EmailListView {
 		shell.setSize(932, 629);
 		shell.setText("SWT Application");
 		
+		
+		//点击“写信”按钮
 		Button btnEmailWrite = new Button(shell, SWT.NONE);
+		btnEmailWrite.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				EmailWriteView writeView=new EmailWriteView(user,password);
+				writeView.open();
+			}
+		});
 		btnEmailWrite.setText("\u5199\u4FE1");
 		btnEmailWrite.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
 		btnEmailWrite.setBounds(22, 96, 82, 39);
 		
-		//点击打开按钮
+		//点击收信按钮
 		Button btnEmailReceive = new Button(shell, SWT.NONE);
 		btnEmailReceive.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				
 				try {
+					//传递folder给EmailParse去解析
 					parse=new EmailParse(folder);
+					//保存基本全部信息
 					parse.saveBasic();
-//					parse.getEmailBasic();
+					//创建发件人、主题、日期列表
 					parse.createTable(table);
 				} catch (MessagingException | IOException e1) {
 					// TODO 自动生成的 catch 块
@@ -112,18 +139,28 @@ public class EmailListView {
 		btnEmailReceive.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
 		btnEmailReceive.setBounds(22, 47, 82, 39);
 		
-		//点击打开指定邮件
+		//点击打开按钮，打开指定邮件
 		Button btnEmailOpen = new Button(shell, SWT.NONE);
 		btnEmailOpen.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
+				//打开第emailNum封邮件
 				int emailNum=table.getSelectionIndex();
-				String receivePerson=parse.getReceive().get(emailNum).getEmailFrom();
+				//分别获取发件人、主题、发送日期、内容、附件流与附件名称
+				String sentPerson=parse.getReceive().get(emailNum).getEmailFrom();
 				String subject=parse.getReceive().get(emailNum).getEmailSubject();
 				String sentDate=parse.getReceive().get(emailNum).getEmailSendDate();
 				String content=parse.getReceive().get(emailNum).getEmailContent();
-				System.out.println(subject);
-				EmailShowView showView=new EmailShowView(content,receivePerson,subject,sentDate);
+				ArrayList<InputStream> attachStream=parse.getReceive().get(emailNum).getAttachStream();
+				ArrayList<String> attachName=parse.getReceive().get(emailNum).getAttachName();
+				
+				System.out.println(parse.getReceive().get(emailNum).getAttachName().size());
+				System.out.println(parse.getReceive().get(emailNum).getAttachName());
+				System.out.println(parse.getReceive().get(emailNum).getEmailSubject());
+				
+				//将获取信息传送给邮件展示窗体EmailShowView
+				EmailShowView showView=new EmailShowView(content,sentPerson,subject,
+						sentDate,attachStream,attachName,user,password);
 //				shell.dispose();
 				showView.open();
 			}
