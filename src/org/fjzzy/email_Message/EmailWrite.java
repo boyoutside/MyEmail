@@ -115,6 +115,7 @@ public class EmailWrite {
 	public void sentEmail() throws AddressException, MessagingException, UnsupportedEncodingException{
 //		2.建立会话Session对象(prop)，获取远程操作
 		session=Session.getInstance(getProp());
+		session.setDebug(true);
 //		3.创建邮件Message
 		MimeMessage message=new MimeMessage(session);
 //		4.创建邮件地址对象

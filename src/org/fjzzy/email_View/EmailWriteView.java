@@ -97,14 +97,14 @@ public class EmailWriteView {
 	 * Launch the application.
 	 * @param args
 	 */
-//	public static void main(String[] args) {
-//		try {
-//			EmailWriteView window = new EmailWriteView();
-//			window.open();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	public static void main(String[] args) {
+		try {
+			EmailWriteView window = new EmailWriteView();
+			window.open();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 
 	/**
@@ -115,13 +115,12 @@ public class EmailWriteView {
 		createContents();
 		shell.open();
 		shell.layout();
+		txtSentPerson.setText(user);
 		if(isReply){
-			txtSentPerson.setText(user);
 			txtReceivePerson.setText(receivePerson);
 			txtContent.setText(emailContent+"\r\n\b你说：");
 		}
 		if(isTransmit){
-			txtSentPerson.setText(user);
 			txtContent.setText(emailContent);
 			txtContent.setEditable(false);
 		}
@@ -163,14 +162,18 @@ public class EmailWriteView {
 					String receivePerson=txtReceivePerson.getText();
 					String subject=txtSubject.getText();
 					String content=txtContent.getText();
-					write=new EmailWrite(sentPerson, receivePerson, subject, content,user,password,filerName,path);
+					write=new EmailWrite(sentPerson, receivePerson, subject, content,
+							user,password,filerName,path);
 					
 					//发送邮件并提示发送成功
 					try {
 						write.sentEmail();
 						lblHint.setText("发送成功！");
-						txtSubject.setText("");;
+						txtSubject.setText("");
 						txtContent.setText("");
+						lblAddHint.setText("");
+						filerName=null;
+						path="";
 						txtContent.forceFocus();
 					} catch (MessagingException | UnsupportedEncodingException e1) {
 						// TODO 自动生成的 catch 块
@@ -240,11 +243,25 @@ public class EmailWriteView {
 		txtReceivePerson.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
 		txtReceivePerson.setBounds(103, 106, 288, 23);
 		
+		//让提示消息小时
 		txtSubject = new Text(shell, SWT.NONE);
+		txtSubject.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				lblHint.setText("");
+			}
+		});
 		txtSubject.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));
 		txtSubject.setBounds(103, 142, 288, 23);
 		
+		//让提示消息小时
 		txtContent = new Text(shell, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL | SWT.MULTI);
+		txtContent.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				lblHint.setText("");
+			}
+		});
 		txtContent.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
 		txtContent.setToolTipText("\u8BF7\u7740\u6B64\u5904\u8F93\u5165\u6B63\u6587\u5185\u5BB9");
 		txtContent.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 12, SWT.BOLD));

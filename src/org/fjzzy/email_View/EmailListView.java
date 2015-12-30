@@ -25,6 +25,7 @@ public class EmailListView {
 	protected Shell shell;
 	private Table table;
 	private Folder folder;
+	private int emailDelCount;
 	
 	private String user;
 	private String password;
@@ -44,14 +45,14 @@ public class EmailListView {
 	 * Launch the application.
 	 * @param args
 	 */
-//	public static void main(String[] args) {
-//		try {
-//			EmailListView window = new EmailListView();
-//			window.open();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	public static void main(String[] args) {
+		try {
+			EmailListView window = new EmailListView();
+			window.open();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 
 	/**
@@ -114,7 +115,7 @@ public class EmailListView {
 		});
 		btnEmailWrite.setText("\u5199\u4FE1");
 		btnEmailWrite.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
-		btnEmailWrite.setBounds(22, 96, 82, 39);
+		btnEmailWrite.setBounds(22, 115, 82, 39);
 		
 		//点击收信按钮
 		Button btnEmailReceive = new Button(shell, SWT.NONE);
@@ -137,7 +138,7 @@ public class EmailListView {
 		});
 		btnEmailReceive.setText("\u6536\u4FE1");
 		btnEmailReceive.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
-		btnEmailReceive.setBounds(22, 47, 82, 39);
+		btnEmailReceive.setBounds(22, 31, 82, 39);
 		
 		//点击打开按钮，打开指定邮件
 		Button btnEmailOpen = new Button(shell, SWT.NONE);
@@ -167,24 +168,78 @@ public class EmailListView {
 		});
 		btnEmailOpen.setText("\u6253\u5F00");
 		btnEmailOpen.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
-		btnEmailOpen.setBounds(22, 141, 82, 39);
+		btnEmailOpen.setBounds(22, 193, 82, 39);
 		
 		Button btnExit = new Button(shell, SWT.NONE);
+		btnExit.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				shell.dispose();
+			}
+		});
 		btnExit.setText("\u9000\u51FA");
 		btnExit.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
-		btnExit.setBounds(22, 186, 82, 39);
+		btnExit.setBounds(22, 342, 82, 39);
 		
-		table = new Table(shell, SWT.BORDER | SWT.FULL_SELECTION);
+		//双击查看邮件
+		table = new Table(shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				System.out.println(table.getSelectionIndex());
+			}
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				if(table.getSelectionIndex()!=-1){
+					//打开第emailNum封邮件
+					int emailNum=table.getSelectionIndex();
+					//分别获取发件人、主题、发送日期、内容、附件流与附件名称
+					String sentPerson=parse.getReceive().get(emailNum).getEmailFrom();
+					String subject=parse.getReceive().get(emailNum).getEmailSubject();
+					String sentDate=parse.getReceive().get(emailNum).getEmailSendDate();
+					String content=parse.getReceive().get(emailNum).getEmailContent();
+					ArrayList<InputStream> attachStream=parse.getReceive().get(emailNum).getAttachStream();
+					ArrayList<String> attachName=parse.getReceive().get(emailNum).getAttachName();
+					
+					System.out.println(parse.getReceive().get(emailNum).getAttachName().size());
+					System.out.println(parse.getReceive().get(emailNum).getAttachName());
+					System.out.println(parse.getReceive().get(emailNum).getEmailSubject());
+					
+					//将获取信息传送给邮件展示窗体EmailShowView
+					EmailShowView showView=new EmailShowView(content,sentPerson,subject,
+							sentDate,attachStream,attachName,user,password);
+//					shell.dispose();
+					showView.open();
+				}
 			}
 		});
 		table.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 10, SWT.BOLD));
 		table.setBounds(132, 20, 758, 560);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+		
+		//删除指定邮件
+		Button btnDelete = new Button(shell, SWT.NONE);
+		btnDelete.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				emailDelCount=table.getSelectionIndex();
+				try {
+					//传递folder给EmailParse去解析
+					parse=new EmailParse(folder,emailDelCount);
+					//保存基本全部信息
+					parse.saveBasic();
+					//创建发件人、主题、日期列表
+					parse.createTable(table);
+				} catch (MessagingException | IOException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnDelete.setText("\u5220\u9664");
+		btnDelete.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 14, SWT.BOLD));
+		btnDelete.setBounds(22, 266, 82, 39);
 		
 	}
 }

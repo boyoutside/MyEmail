@@ -31,12 +31,16 @@ public class EmailReceive {
 	private String emailContent;
 	private String emailSendDate;
 	private String emailSubject;
+	private String type;
 	private EmailListView listView=null;
 	Folder folder;
-	public EmailReceive(String user, String password) {
+	
+	
+	public EmailReceive(String user, String password, String type) {
 		super();
 		this.user = user;
 		this.password = password;
+		this.type = type;
 	}
 	public EmailReceive() {
 		super();
@@ -53,10 +57,10 @@ public class EmailReceive {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
-
-	
-//	1.实例化Properties()
+	public void setType(String type) {
+		this.type = type;
+	}
+	//	1.实例化Properties()
 	private Properties getProp(){
 		Properties prop=new Properties();
 		prop.put("mail.smtp.auth", "true");
@@ -68,8 +72,9 @@ public class EmailReceive {
 	public boolean isConnect() throws MessagingException, IOException{
 		boolean connect;
 		Session session=Session.getInstance(getProp());
+//		session.setDebug(true);
 		//获取INBOX
-		Store stroe=session.getStore("pop3");
+		Store stroe=session.getStore(type);
 		stroe.connect(user, password);
 		connect=stroe.isConnected();
 		folder=stroe.getFolder("INBOX");
@@ -85,12 +90,12 @@ public class EmailReceive {
 //		String content="";
 //		2.建立会话Session对象(prop)，获取远程操作
 		Session session=Session.getInstance(getProp());
-		session.setDebug(true);
+//		session.setDebug(true);
 		//获取INBOX
-		Store stroe=session.getStore("pop3");
+		Store stroe=session.getStore(type);
 		stroe.connect(user, password);
 		Folder folder=stroe.getFolder("INBOX");
-		folder.open(Folder.READ_ONLY);
+//		folder.open(Folder.READ_WRITE);
 	}
 	
 }

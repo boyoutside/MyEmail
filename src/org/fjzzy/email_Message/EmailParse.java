@@ -18,6 +18,8 @@ import java.util.Date;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
+import javax.mail.Flags;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -33,16 +35,24 @@ public class EmailParse {
 	private String emailContent;
 	private String emailSendDate;
 	private String emailSubject;
+//	private int[] emailNum; 
+	private int emailNum=-1;
 	private ArrayList<InputStream> attachStream = null;
 	private ArrayList<String> attachName = null;
 
 	public ArrayList<EmailReceiveSave> receive = null;
 
+	
+	//被EmailListView实例化
+	public EmailParse(Folder folder, int emailNum) {
+		super();
+		this.folder = folder;
+		this.emailNum = emailNum;
+	}
 	public EmailParse(Folder folder) {
 		super();
 		this.folder = folder;
 	}
-
 	public EmailParse() {
 		super();
 	}
@@ -113,26 +123,31 @@ public class EmailParse {
 
 	// 获取全部信息
 	public void saveBasic() throws MessagingException, IOException {
-		folder.open(Folder.READ_ONLY);
-		Message message[] = folder.getMessages();
+		folder.open(Folder.READ_WRITE);
+		Message[] message = folder.getMessages();
 		receive = new ArrayList<EmailReceiveSave>();
 		// 关闭远程储存连接
 		// content=parse.emailparse(message[2]);
 		for (int i = 0, emailCount = message.length; i < emailCount; i++) {
-
-			attachStream = new ArrayList<>();
-			attachName = new ArrayList<>();
-			MimeMessage msg = (MimeMessage) message[i];
-			emailFrom = getFrom(msg);
-			emailContent = getContent(msg);
-			emailSendDate = getSendDate(msg);
-			emailSubject = getSubject(msg);
-			receive.add(new EmailReceiveSave(emailFrom, emailContent,
-					emailSendDate, emailSubject, attachStream, attachName));
-			System.out.println(attachName);
-			// attachStream.clear();
-			// attachName.clear();
+			if(i==emailNum){
+				Message msgDelete=message[i];
+				msgDelete.setFlag(Flags.Flag.DELETED, true);
+			}else{
+				MimeMessage msg = (MimeMessage) message[i];
+				attachStream = new ArrayList<>();
+				attachName = new ArrayList<>();
+				emailFrom = getFrom(msg);
+				emailContent = getContent(msg);
+				emailSendDate = getSendDate(msg);
+				emailSubject = getSubject(msg);
+				receive.add(new EmailReceiveSave(emailFrom, emailContent,
+						emailSendDate, emailSubject, attachStream, attachName));
+				System.out.println(attachName);
+				// attachStream.clear();
+				// attachName.clear();
+			}
 		}
+		
 		folder.close(false);
 	}
 
