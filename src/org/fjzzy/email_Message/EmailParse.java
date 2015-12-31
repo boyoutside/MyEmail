@@ -142,7 +142,6 @@ public class EmailParse {
 				emailSubject = getSubject(msg);
 				receive.add(new EmailReceiveSave(emailFrom, emailContent,
 						emailSendDate, emailSubject, attachStream, attachName));
-				System.out.println(attachName);
 				// attachStream.clear();
 				// attachName.clear();
 			}

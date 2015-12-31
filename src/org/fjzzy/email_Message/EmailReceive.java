@@ -95,7 +95,7 @@ public class EmailReceive {
 		Store stroe=session.getStore(type);
 		stroe.connect(user, password);
 		Folder folder=stroe.getFolder("INBOX");
-//		folder.open(Folder.READ_WRITE);
+		folder.open(Folder.READ_WRITE);
 	}
 	
 }
