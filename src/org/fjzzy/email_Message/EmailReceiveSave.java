@@ -10,13 +10,13 @@ public class EmailReceiveSave {
 	private String emailSubject;
 	private ArrayList<InputStream> attachStream;
 	private ArrayList<String> attachName;
-	
+	private ArrayList<String> imgId;
 	
 	
 	
 	public EmailReceiveSave(String emailFrom, String emailContent,
 			String emailSendDate, String emailSubject,
-			ArrayList<InputStream> attachStream, ArrayList<String> attachName) {
+			ArrayList<InputStream> attachStream, ArrayList<String> attachName,ArrayList<String> imgId) {
 		super();
 		this.emailFrom = emailFrom;
 		this.emailContent = emailContent;
@@ -24,6 +24,7 @@ public class EmailReceiveSave {
 		this.emailSubject = emailSubject;
 		this.attachStream = attachStream;
 		this.attachName = attachName;
+		this.imgId=imgId;
 	}
 	public ArrayList<InputStream> getAttachStream() {
 		return attachStream;
@@ -63,6 +64,9 @@ public class EmailReceiveSave {
 	}
 	public void setEmailSendDate(String emailSendDate) {
 		this.emailSendDate = emailSendDate;
+	}
+	public ArrayList<String> getImgId() {
+		return imgId;
 	}
 	
 }

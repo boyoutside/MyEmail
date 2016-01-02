@@ -52,6 +52,7 @@ public class EmailWriteView {
 		this.isReply=isReply;
 		this.emailContent=emailContent;
 	}
+	
 	//接收转发传送过来的信息
 	public EmailWriteView(String user, String password, String sentPerson,
 			String emailContent, boolean isTransmit) {
@@ -62,6 +63,7 @@ public class EmailWriteView {
 		this.emailContent = emailContent;
 		this.isTransmit = isTransmit;
 	}
+	
 	//接收写信传送过来的信息
 	public EmailWriteView(String user, String password) {
 		super();
@@ -164,7 +166,6 @@ public class EmailWriteView {
 					String content=txtContent.getText();
 					write=new EmailWrite(sentPerson, receivePerson, subject, content,
 							user,password,filerName,path);
-					
 					//发送邮件并提示发送成功
 					try {
 						write.sentEmail();

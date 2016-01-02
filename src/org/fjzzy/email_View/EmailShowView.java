@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeUtility;
@@ -49,17 +51,19 @@ public class EmailShowView {
 	private String sentDate;
 	private ArrayList<InputStream> attachStream;
 	private ArrayList<String> attachName;
+	private ArrayList<String> imgId;
 	private String user;
 	private String password;
 	private Button btnReply;
 	private Button btnTransmit;
 	
 	
+	
 	//接收邮件 主窗体EmailListView传送过来的信息
 	public EmailShowView(String emailContent, String sentPerson,
 			String subject, String sentDate,
 			ArrayList<InputStream> attachStream, ArrayList<String> attachName,
-			String user, String password) {
+			String user, String password,ArrayList<String> imgId) {
 		super();
 		this.emailContent = emailContent;
 		this.sentPerson = sentPerson;
@@ -69,6 +73,7 @@ public class EmailShowView {
 		this.attachName = attachName;
 		this.user = user;
 		this.password = password;
+		this.imgId=imgId;
 	}
 	public String getEmailContent() {
 		return emailContent;
@@ -130,8 +135,10 @@ public class EmailShowView {
 			}
 		}
 	}
+	
 	//在邮件显示窗体显示内容
 	private void showEmailContent(){
+		changEmailContent();
 		lblSentPerson.setText(sentPerson);
 		lblSubject.setText(subject);
 		lblSentDate.setText(sentDate);
@@ -143,6 +150,25 @@ public class EmailShowView {
 			btnLoadAttach.setEnabled(true);System.out.println("可编辑");
 		}
 	}
+	
+	//改变内容与图片适应
+	private void changEmailContent(){
+		String reg = "<img\\s+src=[\"|\'](cid:(\\w+))[\"|\']\\s*\\/>";
+		Pattern pa = Pattern.compile(reg);
+		Matcher match = pa.matcher(emailContent);
+		String path = "";
+		int i = 0;
+		String id = "";
+		String target = "";
+		while(match.find()){
+			id = imgId.get(i);
+			target = match.group();
+			
+			path = "<img src='d:/EmailImg/"+id+".bin' />";
+			emailContent = emailContent.replaceAll("<img\\s+src=[\"|\'](cid:"+id+")[\"|\']\\s*\\/>", path);
+		}
+	}
+	
 	//下载附件
 	private void loadAttach(String fileName) throws IOException {
 		int count=attachStream.size();
@@ -168,11 +194,11 @@ public class EmailShowView {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-//		EmailReceive prop=new EmailReceive();
 		shell = new Shell();
 		shell.setSize(765, 600);
 		shell.setText("SWT Application");
 		
+		//关闭邮件展示界面
 		Button btnClose = new Button(shell, SWT.NONE);
 		btnClose.addMouseListener(new MouseAdapter() {
 			@Override

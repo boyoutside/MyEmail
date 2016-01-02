@@ -75,25 +75,34 @@ public class EmailWrite {
 		this.path = path;
 	}
 	
-	
+	// 获取host
+	private String getHost() {
+		String[] host = null;
+		host = user.split("@");
+		return host[1];
+	}
 	//配置Prop协议
 	private Properties getProp(){
 //		1.实例化Properties()
 		Properties prop=new Properties();
 		prop.put("mail.smtp.auth", "true");
 		prop.put("mail.transport.protocol", "smtp");
-		prop.put("mail.host", "smtp.sina.cn");
+//		prop.put("mail.host", "smtp.sina.cn");
+		prop.put("mail.host", "smtp."+getHost());
 		return prop;
 	}
+	
 	//配置Transport协议
 	private void getTransport(MimeMessage message) throws MessagingException{
 //		6.获取传输功能，建立连接，发送邮件，关闭连接 
 		Transport transport=session.getTransport("smtp");
-		transport.connect("smtp.sina.com.cn",user,password);
+//		transport.connect("smtp.sina.com.cn",user,password);
+		transport.connect("smtp."+getHost(),user,password);
 		transport.sendMessage(message,new Address[] {new InternetAddress(receivePerson)});
 		transport.close();
 		System.out.println("发送成功！");
 	}
+	
 	//添加附件方法
 	private MimeMultipart addAttach(String[] fileName) throws MessagingException, UnsupportedEncodingException{
 		String filePath;
@@ -111,11 +120,12 @@ public class EmailWrite {
 		}
 		return mimeMultipart;
 	}
+	
 	//发送邮件的方法
 	public void sentEmail() throws AddressException, MessagingException, UnsupportedEncodingException{
 //		2.建立会话Session对象(prop)，获取远程操作
 		session=Session.getInstance(getProp());
-		session.setDebug(true);
+//		session.setDebug(true);
 //		3.创建邮件Message
 		MimeMessage message=new MimeMessage(session);
 //		4.创建邮件地址对象

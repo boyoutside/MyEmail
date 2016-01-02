@@ -11,6 +11,7 @@ import java.io.IOException;
 import javax.mail.MessagingException;
 
 import org.fjzzy.email_Message.*;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
@@ -21,6 +22,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.custom.CBanner;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Combo;
 
 public class LoginView {
@@ -45,7 +47,6 @@ public class LoginView {
 			e.printStackTrace();
 		}
 	}
-
 	/**
 	 * Open the window.
 	 */
@@ -61,7 +62,6 @@ public class LoginView {
 			}
 		}
 	}
-	
 	//初始化窗体默认设置最后一次登录的账户密码
 	private void getInfo(){
 		String[] InfoPC=null;
@@ -88,6 +88,7 @@ public class LoginView {
 		}
 		
 	}
+	
 	//设置保存密码的方法
 	private void saveInfo(){
 		File file=new File("Information/PC.txt");
@@ -116,8 +117,9 @@ public class LoginView {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
+		
 		shell = new Shell();
-		shell.setSize(496, 363);
+		shell.setSize(499, 392);
 		shell.setText("SWT Application");
 		
 		Label lblNewLabel = new Label(shell, SWT.NONE);
@@ -146,7 +148,7 @@ public class LoginView {
 		cbSavePC.setBounds(128, 179, 101, 24);
 		cbSavePC.setText("\u8BB0\u4F4F\u5BC6\u7801");
 		
-		//点击“登录”按钮进入邮件客户端主界面
+		//点击“登录”按钮进入邮件客户端主界面  cpibyjjgcbtfjffd
 		Button btnEnter = new Button(shell, SWT.NONE);
 		btnEnter.addMouseListener(new MouseAdapter() {
 			@Override
@@ -154,8 +156,17 @@ public class LoginView {
 				String userName=txtUser.getText();
 				String password=txtPassword.getText();
 				emailReceive=new EmailReceive(userName, password,cbType.getText());
+				boolean relust=false;
 				try {
-					if(emailReceive.isConnect()){
+					relust = emailReceive.isConnect();
+				} catch (MessagingException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				}
+				if(relust){
 						System.out.println("成功");
 						if(cbSavePC.getSelection()){
 							saveInfo();
@@ -165,10 +176,8 @@ public class LoginView {
 						EmailListView listView = new EmailListView(emailReceive.getFolder(),emailReceive.getUser(),
 								emailReceive.getPassword());
 						listView.open();
-					}
-				} catch (MessagingException | IOException e1) {
-					// TODO 自动生成的 catch 块
-					e1.printStackTrace();
+				}else{
+					MessageDialog.openInformation(shell, "登录提示！", "请检查此用户是否有开启邮箱的POP或者IMAP设置！或者账户密码有误！");
 				}
 			}
 		});
@@ -176,7 +185,14 @@ public class LoginView {
 		btnEnter.setBounds(142, 263, 87, 34);
 		btnEnter.setText("\u767B\u5F55");
 		
+		//关闭登录窗口
 		Button btnCancel = new Button(shell, SWT.NONE);
+		btnCancel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				shell.dispose();
+			}
+		});
 		btnCancel.setText("\u53D6\u6D88");
 		btnCancel.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 13, SWT.BOLD));
 		btnCancel.setBounds(245, 263, 87, 34);

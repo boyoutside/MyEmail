@@ -60,14 +60,24 @@ public class EmailReceive {
 	public void setType(String type) {
 		this.type = type;
 	}
+	
+	//获取host
+	private String getHost(){
+		String[] host=null;
+		host=user.split("@");
+		return host[1];
+	}
+	
 	//	1.实例化Properties()
 	private Properties getProp(){
 		Properties prop=new Properties();
 		prop.put("mail.smtp.auth", "true");
 		prop.put("mail.transport.protocol", "smtp");
-		prop.put("mail.host", "pop.sina.com.cn");
+//		prop.put("mail.host", type+".sina.cn");
+		prop.put("mail.host", type+"."+getHost());
 		return prop;
 	}
+	
 	//登录连接的方法
 	public boolean isConnect() throws MessagingException, IOException{
 		boolean connect;
@@ -84,7 +94,8 @@ public class EmailReceive {
 	public Folder getFolder(){
 		return folder;
 	}
-	//
+	
+	
 	//调用方法---getProp()
 	public void getMessage() throws MessagingException, IOException{
 //		String content="";

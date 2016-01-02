@@ -8,6 +8,7 @@ import org.fjzzy.email_View.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,11 +36,10 @@ public class EmailParse {
 	private String emailContent;
 	private String emailSendDate;
 	private String emailSubject;
-//	private int[] emailNum; 
 	private int emailNum=-1;
 	private ArrayList<InputStream> attachStream = null;
 	private ArrayList<String> attachName = null;
-
+	private ArrayList<String> imgId=null;
 	public ArrayList<EmailReceiveSave> receive = null;
 
 	
@@ -134,6 +134,7 @@ public class EmailParse {
 				msgDelete.setFlag(Flags.Flag.DELETED, true);
 			}else{
 				MimeMessage msg = (MimeMessage) message[i];
+				imgId=new ArrayList<>();
 				attachStream = new ArrayList<>();
 				attachName = new ArrayList<>();
 				emailFrom = getFrom(msg);
@@ -141,7 +142,7 @@ public class EmailParse {
 				emailSendDate = getSendDate(msg);
 				emailSubject = getSubject(msg);
 				receive.add(new EmailReceiveSave(emailFrom, emailContent,
-						emailSendDate, emailSubject, attachStream, attachName));
+						emailSendDate, emailSubject, attachStream, attachName,imgId));
 				// attachStream.clear();
 				// attachName.clear();
 			}
@@ -149,7 +150,8 @@ public class EmailParse {
 		
 		folder.close(false);
 	}
-
+	
+	//创建邮件列表
 	public void createTable(Table table) throws MessagingException, IOException {
 		table.removeAll();
 		TableItem item;
@@ -225,24 +227,91 @@ public class EmailParse {
 	StringBuffer content = new StringBuffer();
 
 	public String emailparse(Part msg, StringBuffer content)
-			throws MessagingException, IOException {
+			throws MessagingException {
 		if (msg.isMimeType("text/*")) {
-			content.append((String) msg.getContent());
+			try {
+				content.append((String) msg.getContent());
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
 		} else if (msg.isMimeType("multipart/*")) {
-			Multipart multipart = (Multipart) msg.getContent();
+			Multipart multipart=null;
+			try {
+				multipart = (Multipart) msg.getContent();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
 			int count = multipart.getCount();
 			for (int i = 0; i < count; i++) {
 				BodyPart bodypart = multipart.getBodyPart(i);
 				if (bodypart.getDisposition() != null) {
 					// if(bodypart.getContentType().indexOf("application")!=-1){
 					if (bodypart.getFileName() != null) {
-						attachStream.add(bodypart.getInputStream());
-						attachName.add(MimeUtility.decodeText(bodypart
-								.getFileName()));
+						try {
+							attachStream.add(bodypart.getInputStream());
+							attachName.add(MimeUtility.decodeText(bodypart
+									.getFileName()));
+						} catch (IOException e) {
+							// TODO 自动生成的 catch 块
+							e.printStackTrace();
+						}
+						
 						System.out.println(attachName.size());
 					}
 				}
 				emailparse(bodypart, content);
+			}
+		}else if(msg.isMimeType("application/octet-stream")){
+			if(msg.getContentType().indexOf("name")<0){
+				if(msg.getHeader("Content-id")!=null){
+					String cid=msg.getHeader("Content-id")[0];
+					File file=new File("d:/EmailImg");
+					if(!file.exists()){
+						file.mkdir();
+					}
+					//保存图片ID
+					imgId.add(cid);
+					File imgFile=new File("d:/EmailImg/"+cid+".bin");
+					FileOutputStream output=null;
+					BufferedOutputStream bufferOut=null;
+					InputStream input=null;
+					try {
+						input = msg.getInputStream();
+						output=new FileOutputStream(imgFile);
+					} catch (IOException e) {
+						// TODO 自动生成的 catch 块
+						e.printStackTrace();
+					}
+					bufferOut=new BufferedOutputStream(output);
+					byte[] b=new byte[512];
+					try {
+						while(input.read(b)!=-1){
+							try {
+								bufferOut.write(b);
+							} catch (IOException e) {
+								// TODO 自动生成的 catch 块
+								e.printStackTrace();
+							}
+						}
+					} catch (IOException e) {
+						// TODO 自动生成的 catch 块
+						e.printStackTrace();
+					}finally{
+						try{
+							if(bufferOut!=null){
+								bufferOut.close();
+							}
+							if(output!=null){
+								output.close();
+							}
+						}catch(Exception ex){
+							ex.printStackTrace();
+						}
+					}
+					System.out.println(cid);
+				}
 			}
 		}
 		return content.toString();
