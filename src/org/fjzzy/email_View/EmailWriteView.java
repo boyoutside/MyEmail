@@ -120,7 +120,7 @@ public class EmailWriteView {
 		txtSentPerson.setText(user);
 		if(isReply){
 			txtReceivePerson.setText(receivePerson);
-			txtContent.setText(emailContent+"\r\n\bÄãËµ£º");
+			txtContent.setText(emailContent+"\r\n\r\n\r\n\b\bÄãËµ£º");
 		}
 		if(isTransmit){
 			txtContent.setText(emailContent);

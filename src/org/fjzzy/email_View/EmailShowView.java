@@ -153,7 +153,7 @@ public class EmailShowView {
 	
 	//改变内容与图片适应
 	private void changEmailContent(){
-		String reg = "<img\\s+src=[\"|\'](cid:(\\w+))[\"|\']\\s*\\/>";
+		String reg = "<img\\s+src=[\"|\'](cid:(.+?))[\"|\']\\s*(style=\"(.+?)\")?[\\/]?>";
 		Pattern pa = Pattern.compile(reg);
 		Matcher match = pa.matcher(emailContent);
 		String path = "";
@@ -165,7 +165,8 @@ public class EmailShowView {
 			target = match.group();
 			
 			path = "<img src='d:/EmailImg/"+id+".bin' />";
-			emailContent = emailContent.replaceAll("<img\\s+src=[\"|\'](cid:"+id+")[\"|\']\\s*\\/>", path);
+			emailContent = emailContent.replaceAll("<img\\s+src=[\"|\'](cid:(.+?))[\"|\']\\s*(style=\"(.?)\")?[\\/]?>", path);
+			
 		}
 	}
 	

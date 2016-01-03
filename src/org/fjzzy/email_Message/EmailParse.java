@@ -224,8 +224,30 @@ public class EmailParse {
 		return new SimpleDateFormat("yyyy年MM月dd日 E HH:mm").format(sendDate);
 	}
 
-	StringBuffer content = new StringBuffer();
+	//检查图片cid时用到
+	public String checkChar(String cid){
+		char[] c = cid.toCharArray();
+		for(int i = 0;i < cid.length(); i++ ){	
+			switch (c[i]) {
+			case '\\':
+			case '/':
+			case ':':
+			case '*':
+			case '?':
+			case '<':
+			case '>':
+			case '"':
+				c[i] = '-';
+				break;
+			default:
+				break;
+			}
+		}
+		return new String(c);
+	}
 
+	//邮件解析
+	StringBuffer content = new StringBuffer();
 	public String emailparse(Part msg, StringBuffer content)
 			throws MessagingException {
 		if (msg.isMimeType("text/*")) {
@@ -263,10 +285,11 @@ public class EmailParse {
 				}
 				emailparse(bodypart, content);
 			}
-		}else if(msg.isMimeType("application/octet-stream")){
-			if(msg.getContentType().indexOf("name")<0){
+		}else if(msg.isMimeType("application/octet-stream")||msg.isMimeType("image/*")){
+			if(msg.getContentType().indexOf("name")<0||msg.isMimeType("image/*")){
 				if(msg.getHeader("Content-id")!=null){
 					String cid=msg.getHeader("Content-id")[0];
+					cid = checkChar(cid);
 					File file=new File("d:/EmailImg");
 					if(!file.exists()){
 						file.mkdir();
